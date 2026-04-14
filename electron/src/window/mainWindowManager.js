@@ -9,6 +9,11 @@ export function createWindow() {
     width: 1200,
     height: 800,
     frame: false, // 去除默认标题栏
+    roundedCorners: true, // 启用圆角
+    transparent: true, // 启用透明背景
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 设置背景颜色为半透明黑色
+    backgroundMaterial: 'acrylic', // 启用背景材质，增加阴影效果
+    visualEffectState: 'active', // 激活视觉效果
     webPreferences: {
       preload: path.join(app.getAppPath(), 'preload.js'),
       contextIsolation: true,

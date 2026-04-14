@@ -9,12 +9,7 @@
         <option value="DELETE">DELETE</option>
         <option value="PATCH">PATCH</option>
       </select>
-      <input 
-        v-model="endpoint.url" 
-        type="text" 
-        class="url-input" 
-        placeholder="输入请求 URL"
-      />
+      <input v-model="endpoint.url" type="text" class="url-input" placeholder="输入请求 URL" />
       <button @click="sendRequest" class="send-btn" :disabled="loading">
         {{ loading ? '发送中...' : 'Send' }}
       </button>
@@ -26,13 +21,8 @@
       <div class="request-panel">
         <!-- 标签页 -->
         <div class="tabs-header">
-          <div 
-            v-for="tab in tabs" 
-            :key="tab.id" 
-            class="tab-item" 
-            :class="{ active: activeTabId === tab.id }"
-            @click="switchTab(tab.id)"
-          >
+          <div v-for="tab in tabs" :key="tab.id" class="tab-item" :class="{ active: activeTabId === tab.id }"
+            @click="switchTab(tab.id)">
             {{ tab.name }}
           </div>
         </div>
@@ -119,11 +109,7 @@
             </div>
 
             <div v-if="endpoint.config.bodyType !== 'none'" class="body-editor">
-              <textarea 
-                v-model="endpoint.config.body" 
-                placeholder="输入请求体"
-                class="body-textarea"
-              ></textarea>
+              <textarea v-model="endpoint.config.body" placeholder="输入请求体" class="body-textarea"></textarea>
               <div v-if="endpoint.config.bodyType === 'json'" class="body-actions">
                 <button @click="formatJSON" class="action-btn">格式化</button>
                 <button @click="compactJSON" class="action-btn">压缩</button>
@@ -160,6 +146,13 @@
               </div>
             </div>
           </div>
+          <!-- responseType 标签页 -->
+          <div v-if="activeTabId === 'response'" class="tab-pane">
+            <div class="form-item">
+              <label>responseType:</label>
+              <input v-model="responseType" type="text" placeholder="json, text, stream, blob, arraybuffer, document">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -180,13 +173,8 @@
         </div>
 
         <div class="response-tabs">
-          <div 
-            v-for="tab in responseTabs" 
-            :key="tab.id" 
-            class="response-tab" 
-            :class="{ active: activeResponseTab === tab.id }"
-            @click="activeResponseTab = tab.id"
-          >
+          <div v-for="tab in responseTabs" :key="tab.id" class="response-tab"
+            :class="{ active: activeResponseTab === tab.id }" @click="activeResponseTab = tab.id">
             {{ tab.name }}
           </div>
         </div>
@@ -241,7 +229,7 @@ const tabs = [
   { id: 'params', name: 'Params' },
   { id: 'headers', name: 'Headers' },
   { id: 'body', name: 'Body' },
-  { id: 'auth', name: 'Authorization' }
+  { id: 'response', name: 'responseType' }
 ]
 
 const responseTabs = [
@@ -254,6 +242,11 @@ const authType = ref('none')
 const authToken = ref('')
 const authUsername = ref('')
 const authPassword = ref('')
+
+// `responseType` 表示浏览器将要响应的数据类型
+// 选项包括: 'arraybuffer', 'document', 'json', 'text', 'stream'
+// 浏览器专属：'blob'
+const responseType = ref('json')
 
 // Header 列表（转换为数组形式）
 const headerList = ref([])
@@ -348,7 +341,7 @@ async function sendRequest() {
   try {
     // 构建 headers
     const headers = { ...props.projectConfig.headers }
-    
+
     // 添加 headerList 中的 headers
     headerList.value.forEach(header => {
       if (header.key && header.enabled) {
@@ -357,12 +350,12 @@ async function sendRequest() {
     })
 
     // 处理 Authorization
-    if (authType.value === 'bearer' && authToken.value) {
-      headers['Authorization'] = `Bearer ${authToken.value}`
-    } else if (authType.value === 'basic' && authUsername.value) {
-      const credentials = btoa(`${authUsername.value}:${authPassword.value}`)
-      headers['Authorization'] = `Basic ${credentials}`
-    }
+    // if (authType.value === 'bearer' && authToken.value) {
+    //   headers['Authorization'] = `Bearer ${authToken.value}`
+    // } else if (authType.value === 'basic' && authUsername.value) {
+    //   const credentials = btoa(`${authUsername.value}:${authPassword.value}`)
+    //   headers['Authorization'] = `Basic ${credentials}`
+    // }
 
     const options = {
       baseUrl: props.projectConfig.baseUrl || '',
@@ -372,15 +365,18 @@ async function sendRequest() {
       params: props.endpoint.config.params || [],
       body: props.endpoint.config.body || '',
       bodyType: props.endpoint.config.bodyType || 'none',
+      responseType: responseType.value || 'json',
       proxy: props.projectConfig.proxy || '',
       timeout: props.endpoint.config.timeout || props.projectConfig.timeout || 30000
     }
 
     // 使用 electronAPI 发送请求
     if (window.electronAPI && window.electronAPI.sendApiRequest) {
-      const result = await window.electronAPI.sendApiRequest(options)
+      // 确保 options 对象是可序列化的，避免 IPC 通信中的克隆错误
+      const serializableOptions = JSON.parse(JSON.stringify(options))
+      const result = await window.electronAPI.sendApiRequest(serializableOptions)
       response.value = result
-      
+
       // 切换到响应标签页
       activeResponseTab.value = 'body'
     } else {
@@ -390,6 +386,8 @@ async function sendRequest() {
     // 触发发送请求事件
     emit('send-request', props.endpoint, props.projectConfig)
   } catch (error) {
+    console.log('error--web', error);
+    
     response.value = {
       success: false,
       status: 0,
@@ -428,7 +426,7 @@ function formatSize(bytes) {
 // 复制响应
 function copyResponse() {
   if (response.value?.data) {
-    const text = typeof response.value.data === 'object' 
+    const text = typeof response.value.data === 'object'
       ? JSON.stringify(response.value.data, null, 2)
       : response.value.data
     navigator.clipboard.writeText(text)

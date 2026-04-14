@@ -33,6 +33,10 @@ export function registerApiHandlers() {
           projects.push(JSON.parse(content))
         }
       }
+      // 根据 id 进行排序
+      projects.sort((a, b) => {
+        return a.id.localeCompare(b.id)
+      })
       return projects
     } catch (error) {
       console.error('Error getting API projects:', error)
@@ -48,12 +52,13 @@ export function registerApiHandlers() {
       fs.mkdirSync(swaggerPath, { recursive: true })
     }
     
-    const filePath = path.join(swaggerPath, `${project.name}.json`)
+    const filePath = path.join(swaggerPath, `${project.fileName}.json`)
     
     try {
       const projectData = {
         id: Date.now().toString(),
         name: project.name,
+        fileName: `${project.fileName}.json`,
         description: project.description || '',
         config: {
           baseUrl: project.config?.baseUrl || '',
@@ -73,7 +78,7 @@ export function registerApiHandlers() {
 
   ipcMain.handle('update-api-project', async (event, project) => {
     const swaggerPath = getSwaggerPath()
-    const filePath = path.join(swaggerPath, `${project.name}.json`)
+    const filePath = path.join(swaggerPath, `${project.fileName}`)
     
     try {
       // 确保 config 结构完整

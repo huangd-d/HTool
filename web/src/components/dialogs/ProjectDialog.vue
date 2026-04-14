@@ -8,6 +8,10 @@
           <input v-model="form.name" type="text" placeholder="输入项目名称">
         </div>
         <div class="form-item">
+          <label>项目文件名:</label>
+          <input v-model="form.fileName" type="text" placeholder="请输入数字、字母、下划线，不能包含中文">
+        </div>
+        <div class="form-item">
           <label>项目描述:</label>
           <textarea v-model="form.description" placeholder="输入项目描述"></textarea>
         </div>
@@ -54,6 +58,7 @@ const emit = defineEmits(['update:modelValue', 'save'])
 
 const form = ref({
   name: '',
+  fileName: '',
   description: '',
   config: {
     baseUrl: '',
@@ -78,6 +83,18 @@ const headersText = computed({
   }
 })
 
+// 生成当前时间格式化字符串
+function getCurrentTimeString() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  const seconds = String(now.getSeconds()).padStart(2, '0')
+  return `${year}${month}${day}_${hours}${minutes}${seconds}`
+}
+
 // 监听 project 变化，更新表单
 watch(() => props.project, (newProject) => {
   if (newProject) {
@@ -98,6 +115,7 @@ watch(() => props.project, (newProject) => {
 function resetForm() {
   form.value = {
     name: '',
+    fileName: getCurrentTimeString(),
     description: '',
     config: {
       baseUrl: '',
@@ -114,12 +132,17 @@ function close() {
 }
 
 function handleSave() {
-  if (!form.value.name) {
-    alert('请输入项目名称')
+  if (!form.value.name || !form.value.fileName) {
+    alert('请输入项目名称和文件名')
+    return
+  }
+  // 数字、字母、下划线，不能包含中文
+  if (!form.value.fileName.match(/^[a-zA-Z0-9][a-zA-Z0-9_]+$/)) {
+    alert('请输入正确的文件名格式')
     return
   }
   
-  emit('save', { ...form.value })
+  emit('save', { ...form.value})
   close()
 }
 </script>

@@ -8,6 +8,8 @@ import { URLSearchParams } from 'url'
  * @returns {Promise<Object>} 响应结果
  */
 export async function sendRequest(options) {
+  console.log('options', options);
+
   const {
     baseUrl = '',
     url,
@@ -16,6 +18,7 @@ export async function sendRequest(options) {
     params = [],
     body,
     bodyType = 'none',
+    responseType = 'json',
     proxy = '',
     timeout = 30000
   } = options
@@ -25,7 +28,7 @@ export async function sendRequest(options) {
   try {
     // 1. 构建完整 URL
     let fullUrl = baseUrl ? `${baseUrl}${url}` : url
-    
+
     // 添加查询参数
     if (params && params.length > 0) {
       const searchParams = new URLSearchParams()
@@ -138,23 +141,34 @@ export async function sendRequest(options) {
       size: responseSize,
       contentType: contentType
     }
-  } catch (error) {
-    const duration = Date.now() - startTime
+  } // 在 requestHandler.js 中修改错误处理
+  catch (error) {
+    console.log('error', error);
     
+    const duration = Date.now() - startTime
+
     // 错误处理
     if (error.name === 'AbortError') {
       return {
         success: false,
-        error: '请求超时',
+        status: 0,
+        statusText: '请求超时',
+        data: { error: '请求超时' },
         time: duration,
+        size: 0,
+        headers: {},
         timeout: timeout
       }
     }
 
     return {
       success: false,
-      error: error.message || '请求失败',
+      status: 0,
+      statusText: 'Error',
+      data: { error: error.message || '请求失败' },
       time: duration,
+      size: 0,
+      headers: {},
       code: error.code
     }
   }

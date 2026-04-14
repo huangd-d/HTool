@@ -1,6 +1,7 @@
 {
   "id": "1712908800000",
   "name": "示例项目",
+  "fileName": "example-project.json",
   "description": "这是一个示例 API 项目",
   "config": {
     "baseUrl": "https://jsonplaceholder.typicode.com",
