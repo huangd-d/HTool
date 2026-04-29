@@ -1,139 +1,119 @@
-# 综合工具平台
+# HTool - 综合工具平台
 
-一站式开发工具解决方案，基于 Electron + Vue 3 构建的跨平台桌面应用。
+基于 Electron + Vue 3 的内网前端工具箱桌面应用，提供 API 管理、技术文档预览、Office 文档预览三大模块。
 
 ## 技术栈
 
-- **前端框架**：Vue 3 (Composition API, `<script setup>`)
-- **构建工具**：Vite
-- **桌面应用**：Electron
-- **UI 库**：Element Plus
-- **图标**：Element Plus Icons
-- **样式**：CSS 变量 + 响应式设计
+- **Electron 41** (ES Module，无 TypeScript)
+- **Vue 3** + **Vue Router 5** (history 模式) + **Element Plus 2**
+- **Vite 8** (构建工具)
+- **node-fetch** + **proxy-agent** (API 请求与代理)
+- **jit-viewer** (Office 文档渲染)
+- 纯 JavaScript 项目，无 TypeScript / ESLint 配置
 
 ## 项目结构
 
 ```
-w-project/
-├── electron/           # Electron 主进程
-│   ├── src/            # 主进程源码
-│   │   ├── api/        # API 处理模块
-│   │   ├── protocol/   # 协议处理模块
-│   │   ├── window/     # 窗口管理模块
-│   │   └── index.js    # 主进程入口
-│   ├── preload.js      # 预加载脚本
-│   └── package.json    # Electron 依赖
-├── web/                # Vue 前端
-│   ├── src/            # 前端源码
-│   │   ├── assets/     # 静态资源
-│   │   ├── components/ # 组件
-│   │   ├── config/     # 配置文件
-│   │   ├── router/     # 路由
-│   │   ├── views/      # 页面视图
-│   │   ├── App.vue     # 根组件
-│   │   └── main.js     # 前端入口
-│   ├── vite.config.js  # Vite 配置
-│   └── package.json    # 前端依赖
-└── .gitignore          # Git 忽略文件
+electron/                    # Electron 主进程
+├── src/
+│   ├── index.js             # 主入口：启动流程、注册协议、创建窗口
+│   ├── utils/
+│   │   ├── paths.js         # 资源路径工具（getSwaggerPath, getDocsPath, getWebDistPath）
+│   │   └── appUrl.js        # 页面URL工具（getAppURL，开发/生产切换）
+│   ├── api/
+│   │   ├── apiHandler.js    # IPC 处理：项目/分类/接口 CRUD + 请求
+│   │   ├── docsHandler.js   # IPC 处理：docs 目录列表
+│   │   └── requestHandler.js # HTTP 请求引擎 (node-fetch + ProxyAgent)
+│   ├── protocol/
+│   │   └── protocolHandler.js # 自定义 app:// + docs:// 协议
+│   └── window/
+│       ├── mainWindowManager.js # BaseWindow + 壳 WebContentsView 创建
+│       ├── tabManager.js    # 标签页：多 WebContentsView 管理
+│       ├── windowEvents.js  # IPC 事件：窗口控制、标签、导航、缩放
+│       └── windowManager.js # 统一导出 + initializeFirstTab
+├── build/                   # electron-builder 资源（图标等）
+├── preload.js               # Context Bridge：暴露 electronAPI
+├── swagger/                 # API 项目 JSON 数据文件
+├── docs/                    # 技术文档静态站点
+├── web-dist/                # Vite 构建输出（gitignore）
+└── package.json             # 主进程依赖 + electron-builder 配置
+
+web/                         # Vue 3 前端
+├── src/
+│   ├── main.js              # Vue 入口
+│   ├── App.vue              # 根组件
+│   ├── style.css            # 暗黑橙主题 CSS 变量
+│   ├── config/menuConfig.js # 菜单定义 + createTab 辅助函数
+│   ├── router/index.js      # 路由：/ /home /api /docs /office
+│   ├── views/               # 页面视图
+│   └── components/          # 组件 + dialogs 对话框
+├── vite.config.js           # 条件 base + outDir + 路径别名
+└── package.json             # 前端依赖
 ```
 
-## 功能特点
+## 功能模块
 
-### 1. 首页
-- 功能卡片展示
-- 快速导航到各功能模块
-- 响应式设计，适配不同屏幕尺寸
+### 1. API 管理
+- 三级层级：项目 → 分类 → 接口
+- 数据存储：`electron/swagger/` 目录下的 JSON 文件
+- 支持代理和超时的接口请求
+- Postman 风格的请求/响应 UI
 
-### 2. API 管理
-- API 项目管理（创建、编辑、删除）
-- API 分类管理
-- API 接口管理
-- API 测试与请求
+### 2. 技术文档预览
+- 文档站点放入 `electron/docs/` 目录
+- 自定义 `docs://` 协议加载文档
+- SPA fallback 支持
 
-### 3. 技术文档访问
-- 本地技术文档浏览
-- 支持多种文档格式
-
-### 4. 办公文件预览
-- 办公文件快速预览
-- 支持常见文档格式
-
-### 5. 标签页管理
-- 多标签页切换
-- 标签页创建与关闭
-- 跨 WebContentsView 通信
+### 3. Office 文档预览
+- 支持 `.docx/.xlsx/.pptx` 文件
+- 使用 `jit-viewer` 渲染
 
 ## 安装和运行
 
 ### 前置条件
-- Node.js 14+ 环境
-- npm 或 yarn 包管理器
+- Node.js 18+
 
 ### 安装依赖
 
 ```bash
-# 安装前端依赖
-cd web
-npm install
-
-# 安装 Electron 依赖
-cd ../electron
-npm install
+cd web && npm install
+cd ../electron && npm install
 ```
 
-### 开发模式运行
+### 开发模式
+
+需要两个终端分别运行：
 
 ```bash
-# 启动前端开发服务器
-cd web
-npm run dev
+# 终端 1：前端开发服务器
+cd web && npm run dev
 
-# 在另一个终端启动 Electron
-cd ../electron
-npm run dev
+# 终端 2：Electron 主进程
+cd electron && npm start
+```
+
+或使用根目录快捷命令：
+
+```bash
+npm run dev:web          # 前端开发
+npm run dev:electron     # Electron 开发
 ```
 
 ## 构建和打包
 
-### 构建前端
-
 ```bash
-cd web
-npm run build
+# 构建前端
+cd web && npm run build
+
+# 打包（会自动构建前端）
+cd electron && npm run build:win    # Windows Portable
+cd electron && npm run build:linux  # Linux AppImage + deb
+
+# 根目录快捷命令
+npm run build:win
+npm run build:linux
 ```
-
-### 打包 Electron 应用
-
-```bash
-cd electron
-npm run build
-```
-
-## 开发指南
-
-### 代码规范
-- Vue 文件使用 `<script setup>` 语法
-- 组件命名使用 PascalCase
-- 函数和变量使用 camelCase
-- 代码注释使用中文
-
-### 项目配置
-- 菜单配置：`web/src/config/menuConfig.js`
-- 路由配置：`web/src/router/index.js`
-- 主进程窗口管理：`electron/src/window/`
-
-### 跨进程通信
-- 渲染进程 → 主进程：使用 `window.electronAPI`
-- 主进程 → 渲染进程：使用 `webContents.send()`
-
-## 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
 
 ## 许可证
 
-MIT License - 详见 LICENSE 文件
+MIT License
