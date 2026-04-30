@@ -1,13 +1,13 @@
 <template>
   <div class="window-controls">
     <button class="control-btn minimize" @click="minimizeWindow">
-      <el-icon><Minus /></el-icon>
+      <el-icon style="flex-shrink: 0;" size="20"><Minus /></el-icon>
     </button>
     <button class="control-btn maximize" @click="maximizeWindow">
-      <el-icon><FullScreen /></el-icon>
+      <el-icon style="flex-shrink: 0;" size="20"><FullScreen /></el-icon>
     </button>
     <button class="control-btn close" @click="closeWindow">
-      <el-icon><Close /></el-icon>
+      <el-icon style="flex-shrink: 0;" size="20"><Close /></el-icon>
     </button>
   </div>
 </template>
@@ -87,6 +87,7 @@ const closeWindow = () => {
 
 .control-btn el-icon {
   font-size: 16px;
+  flex-shrink: 0;
 }
 
 .minimize:hover {

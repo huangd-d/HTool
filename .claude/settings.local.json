@@ -16,7 +16,15 @@
       "Bash(npm run *)",
       "Bash(npx electron *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(gh api *)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s \"https://api.github.com/repos/KKKKhazix/khazix-skills/contents/neat-freak\")",
+      "Bash(python -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(f['name'], f['download_url']\\) for f in data]\")",
+      "Bash(curl *)",
+      "Bash(echo \"---EXIT:$?\")",
+      "Bash(git reset *)",
+      "Bash(npm install *)"
     ]
   }
 }

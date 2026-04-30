@@ -3,9 +3,13 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const CONFIG_FILE = path.join(__dirname, '..', '..', 'swagger', 'mysql-connections.json')
+const MYSQL_DIR = path.join(__dirname, '..', '..', 'mysql')
+const CONFIG_FILE = path.join(MYSQL_DIR, 'mysql-connections.json')
 
 function ensureConfigFile() {
+  if (!fs.existsSync(MYSQL_DIR)) {
+    fs.mkdirSync(MYSQL_DIR, { recursive: true })
+  }
   if (!fs.existsSync(CONFIG_FILE)) {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify({ connections: [] }, null, 2))
   }

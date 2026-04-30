@@ -89,6 +89,7 @@ export function registerApiHandlers() {
           const filePath = path.join(swaggerPath, file)
           const content = await fs.promises.readFile(filePath, 'utf8')
           let project = JSON.parse(content)
+          if (!project.id || !project.name) continue
           const needsMigration = !project.type || project.categories !== undefined
           if (needsMigration) {
             project = migrateProjectData(project)

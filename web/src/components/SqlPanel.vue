@@ -116,10 +116,13 @@ defineExpose({ setSql, resetResult })
 
 <style scoped>
 .sql-panel {
-  flex: 1;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--content-bg-card);
+  border-radius: 6px;
 }
 
 /* SQL 编辑区 */
@@ -128,6 +131,8 @@ defineExpose({ setSql, resetResult })
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .sql-toolbar {
@@ -186,11 +191,14 @@ defineExpose({ setSql, resetResult })
   color: var(--content-text);
   background: var(--content-bg-card);
   outline: none;
+  box-sizing: border-box;
 }
 
 /* 结果区 */
 .result-section {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -241,7 +249,7 @@ defineExpose({ setSql, resetResult })
 }
 
 .result-table {
-  width: 100%;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 12px;
 }

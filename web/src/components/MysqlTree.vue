@@ -436,8 +436,7 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
 
 <style scoped>
 .mysql-tree {
-  width: 260px;
-  min-width: 260px;
+  min-width: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -451,7 +450,6 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #1B1B1B;
   border-bottom: 1px solid var(--content-border);
   flex-shrink: 0;
 }
@@ -460,7 +458,7 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--accent);
 }
 
 .tree-actions {
@@ -472,8 +470,8 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
   width: 24px;
   height: 24px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: #FFFFFF;
+  background: rgba(255, 144, 0, 0.1);
+  color: var(--accent);
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
@@ -485,6 +483,7 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
 
 .btn-icon:hover {
   background: var(--accent);
+  color: #FFFFFF;
 }
 
 .tree-body {

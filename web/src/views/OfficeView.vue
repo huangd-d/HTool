@@ -166,14 +166,13 @@ onUnmounted(() => {
 .selector-header {
   padding: 16px;
   border-bottom: 1px solid var(--content-border);
-  background: #1B1B1B;
 }
 
 .selector-header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--accent);
 }
 
 .select-button {

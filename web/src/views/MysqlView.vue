@@ -87,17 +87,19 @@ function handleQueryExecuted({ sql, result }) {
 <style scoped>
 .mysql-container {
   height: 100%;
-  display: flex;
-  flex: 1;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 260px 1fr;
   overflow: hidden;
 }
 
 .mysql-content {
-  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  padding: 10px;
   overflow: hidden;
-  background: var(--content-bg-card);
+  background: var(--content-bg);
 }
 
 .empty-state {
@@ -106,6 +108,8 @@ function handleQueryExecuted({ sql, result }) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: var(--content-bg-card);
+  border-radius: 6px;
   color: var(--content-text-hint);
 }
 

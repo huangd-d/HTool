@@ -51,6 +51,11 @@ export function createWindow() {
   //   })
   // }
 
+  shellView.webContents.openDevTools({
+    mode: 'detach',
+    activate: true
+  })
+
   // 处理资源清理
   mainWindow.on('closed', () => {
     shellView.webContents.close()
