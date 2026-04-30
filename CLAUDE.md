@@ -90,9 +90,10 @@ package.json                 # 根目录构建编排脚本
 - 所有协议均内置路径遍历防护
 
 ### 3. Office 文档预览
-- 支持导入 `.docx/.xlsx/.pptx` 文件
-- 使用 `jit-viewer` 包进行渲染（当前为占位实现）
-- 文件选择 + 最近文件列表 + 标签页预览
+- 使用 `jit-viewer` SDK（`createViewer` API）进行文档渲染
+- 支持格式：PDF、Office（`.docx/.xlsx/.xls/.pptx/.ppt`）、OFD、CSV/TSV、TXT、Markdown、HTML、图片、视频、CAD（`.dxf`）、3D 模型（`.glb/.gltf/.stl`）
+- 配置：暗黑主题 + 中文 locale + 内置工具栏
+- 文件选择 + 最近文件列表 + 多标签页预览（每个 tab 独立 `createViewer` 实例）
 
 ## IPC 通信接口 (preload.js → window.electronAPI)
 

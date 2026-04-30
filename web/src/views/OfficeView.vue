@@ -7,7 +7,8 @@
           <h3>文件选择</h3>
         </div>
         <div class="select-button">
-          <input type="file" @change="handleFileSelect" accept=".docx,.xlsx,.pptx">
+          <input type="file" @change="handleFileSelect"
+            accept=".pdf,.docx,.xlsx,.xls,.csv,.tsv,.pptx,.ppt,.ofd,.txt,.md,.html,.htm,.jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.mp4,.webm,.mov,.dxf,.glb,.gltf,.stl">
           <button @click="openFileDialog">+ 浏览文件</button>
         </div>
         <div class="recent-files" v-if="tabs.length > 0">
@@ -19,36 +20,26 @@
           </ul>
         </div>
       </div>
-      
+
       <!-- 右侧预览区域 -->
       <div class="document-preview">
         <!-- Tab 头部 -->
         <div class="tab-header" v-if="tabs.length > 0">
-          <div 
-            v-for="tab in tabs" 
-            :key="tab.id" 
-            class="tab-item"
-            :class="{ active: activeTabId === tab.id }"
-          >
+          <div v-for="tab in tabs" :key="tab.id" class="tab-item" :class="{ active: activeTabId === tab.id }">
             <span @click="switchTab(tab.id)">{{ tab.file.name }}</span>
             <button @click="closeTab(tab.id)" class="tab-close">×</button>
           </div>
         </div>
-        
+
         <!-- Tab 内容 -->
         <div class="tab-content">
-          <div v-if="tabs.length > 0">
-            <div 
-              v-for="tab in tabs" 
-              :key="tab.id" 
-              class="tab-pane"
-              :class="{ active: activeTabId === tab.id }"
-            >
+          <template v-if="tabs.length > 0">
+            <div v-for="tab in tabs" :key="tab.id" class="tab-pane" :class="{ active: activeTabId === tab.id }">
               <div v-if="tab.loading" class="loading">加载中...</div>
               <div v-else-if="tab.error" class="error">{{ tab.error }}</div>
               <div v-else class="jit-viewer" :ref="el => setViewerRef(el, tab.id)"></div>
             </div>
-          </div>
+          </template>
           <div v-else class="preview-placeholder">
             请选择一个 Office 文档进行预览
           </div>
@@ -59,7 +50,9 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted } from 'vue'
+import { ref, nextTick, onUnmounted } from 'vue'
+import { createViewer } from 'jit-viewer'
+import 'jit-viewer/style.css'
 
 const tabs = ref([])
 const activeTabId = ref(null)
@@ -67,7 +60,6 @@ const viewerRefs = ref({})
 const jitViewers = ref({})
 
 function openFileDialog() {
-  // 触发文件选择对话框
   document.querySelector('input[type="file"]').click()
 }
 
@@ -76,26 +68,42 @@ async function handleFileSelect(event) {
   if (file) {
     await openFileTab(file)
   }
+  event.target.value = ''
 }
 
 async function openFileTab(file) {
   const newTab = {
     id: Date.now().toString(),
     file: file,
+    fileName: file.name,
     loading: true,
     error: ''
   }
-  
+
   tabs.value.push(newTab)
   activeTabId.value = newTab.id
-  
+
+  // 先关闭 loading 让 v-else 分支渲染出 .jit-viewer 容器
+  newTab.loading = false
+  await nextTick()
+
   try {
-    await loadJitViewer(newTab)
+    const container = viewerRefs.value[newTab.id]
+    if (!container) throw new Error('容器未就绪')
+
+    const viewer = createViewer({
+      target: container,
+      file: file,
+      filename: file.name,
+      toolbar: true,
+      theme: 'dark',
+      locale: 'zh-CN'
+    })
+    viewer.mount()
+    jitViewers.value[newTab.id] = viewer
   } catch (err) {
     newTab.error = `预览失败: ${err.message}`
     console.error('预览错误:', err)
-  } finally {
-    newTab.loading = false
   }
 }
 
@@ -105,36 +113,24 @@ function setViewerRef(el, tabId) {
   }
 }
 
-async function loadJitViewer(tab) {
-  // 模拟 JIT Viewer 加载，实际项目中应使用真实的 SDK
-  // 这里我们只做占位处理
-  setTimeout(() => {
-    console.log('加载文件:', tab.file.name)
-  }, 1000)
-}
-
 function switchTab(tabId) {
   activeTabId.value = tabId
 }
 
 function closeTab(tabId) {
-  // 销毁对应的 viewer
   if (jitViewers.value[tabId]) {
     jitViewers.value[tabId].destroy()
     delete jitViewers.value[tabId]
   }
-  
-  // 移除标签
+
   tabs.value = tabs.value.filter(tab => tab.id !== tabId)
-  
-  // 切换到其他标签
+
   if (activeTabId.value === tabId) {
     activeTabId.value = tabs.value.length > 0 ? tabs.value[0].id : null
   }
 }
 
 onUnmounted(() => {
-  // 销毁所有 viewers
   Object.values(jitViewers.value).forEach(viewer => {
     if (viewer && viewer.destroy) {
       viewer.destroy()
@@ -352,16 +348,8 @@ onUnmounted(() => {
 }
 
 .jit-viewer {
-  width: 100%;
-  height: 100%;
-  background-color: var(--content-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--content-text-secondary);
-  font-size: 14px;
-  border: 1px solid var(--content-border);
-  border-radius: 4px;
+  position: absolute;
+  inset: 0;
 }
 
 /* 滚动条样式 */

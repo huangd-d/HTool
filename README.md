@@ -65,8 +65,9 @@ web/                         # Vue 3 前端
 - SPA fallback 支持
 
 ### 3. Office 文档预览
-- 支持 `.docx/.xlsx/.pptx` 文件
-- 使用 `jit-viewer` 渲染
+- 支持 PDF、Office（.docx/.xlsx/.pptx 等）、OFD、Markdown、图片、视频、CAD、3D 模型等格式
+- 使用 `jit-viewer` SDK 渲染，内置工具栏（缩放、翻页、打印、下载等）
+- 多标签页预览
 
 ## 安装和运行
 
