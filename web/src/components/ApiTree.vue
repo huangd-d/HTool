@@ -380,8 +380,8 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border);
+  background: var(--content-bg-card);
+  border-right: 1px solid var(--content-border);
   overflow: hidden;
 }
 
@@ -390,19 +390,19 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 15px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--content-border);
 }
 
 .toolbar-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--content-text);
 }
 
 .tree-toolbar .add-btn {
   width: 24px;
   height: 24px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--content-border);
   border-radius: 4px;
   background: transparent;
   color: var(--accent);
@@ -415,7 +415,8 @@ onMounted(() => {
 }
 
 .tree-toolbar .add-btn:hover {
-  background: rgba(255, 144, 0, 0.1);
+  background: var(--accent);
+  color: #FFFFFF;
   border-color: var(--accent);
 }
 
@@ -437,11 +438,11 @@ onMounted(() => {
 }
 
 .api-tree :deep(.el-tree-node__content:hover) {
-  background-color: rgba(255, 144, 0, 0.08);
+  background-color: var(--content-bg);
 }
 
 .api-tree :deep(.el-tree-node.is-current > .el-tree-node__content) {
-  background-color: rgba(255, 144, 0, 0.1);
+  background-color: var(--content-bg);
   font-weight: 500;
 }
 
@@ -473,12 +474,12 @@ onMounted(() => {
 
 .category-node {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--content-text-secondary);
 }
 
 .endpoint-node {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--content-text-secondary);
 }
 
 /* 方法徽标 */
@@ -514,7 +515,7 @@ onMounted(() => {
   height: 20px;
   border: none;
   background: transparent;
-  color: var(--text-hint);
+  color: var(--content-text-hint);
   font-size: 14px;
   cursor: pointer;
   border-radius: 3px;
@@ -525,8 +526,8 @@ onMounted(() => {
 }
 
 .action-icon:hover {
-  background: var(--border);
-  color: var(--text);
+  background: var(--content-bg);
+  color: var(--content-text);
 }
 
 .action-icon.delete-icon:hover {
@@ -538,17 +539,17 @@ onMounted(() => {
   color: var(--accent);
 }
 
-/* 深色区域滚动条 */
+/* 浅色区域滚动条 */
 .api-tree :deep(.el-tree)::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--content-bg-card);
 }
 
 .api-tree :deep(.el-tree)::-webkit-scrollbar-thumb {
-  background: #444444;
+  background: #C7C7CC;
   border-radius: 3px;
 }
 
 .api-tree :deep(.el-tree)::-webkit-scrollbar-thumb:hover {
-  background: #666666;
+  background: #999;
 }
 </style>

@@ -7,7 +7,7 @@ let shellView
 export const mainWindowBounds = {
   width: 1200,
   height: 800,
-  x: 60,
+  x: 0,
   y: 48
 }
 

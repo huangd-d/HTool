@@ -26,7 +26,7 @@ electron/                    # Electron 主进程
 │   │   ├── requestHandler.js # HTTP 请求引擎 (node-fetch + ProxyAgent)
 │   │   ├── mysqlConnection.js # MySQL 逻辑层（纯 mysql2/promise，无 Electron 依赖）
 │   │   ├── mysqlHandler.js  # IPC 处理：MySQL 连接/库/表/查询
-│   │   └── mysqlConfig.js   # MySQL 连接配置持久化（swagger/mysql-connections.json）
+│   │   └── mysqlConfig.js   # MySQL 连接配置持久化（mysql/mysql-connections.json）
 │   ├── protocol/
 │   │   └── protocolHandler.js # 自定义 app:// + docs:// 协议（前端应用 + 文档站点 + swagger）
 │   └── window/
@@ -37,6 +37,7 @@ electron/                    # Electron 主进程
 ├── build/                   # electron-builder 资源（图标等）
 ├── preload.js               # Context Bridge：暴露 electronAPI
 ├── swagger/                 # API 项目 JSON 数据文件（本地文件存储，无数据库）
+├── mysql/                   # MySQL 连接配置持久化（mysql-connections.json）
 ├── docs/                    # 技术文档静态站点（element-plus/、vue/、vite/）
 ├── web-dist/                # Vite 构建输出（gitignore，构建时生成）
 └── package.json             # 主进程依赖 + electron-builder 配置
@@ -59,7 +60,10 @@ web/                         # Vue 3 前端
 │   │   └── MysqlView.vue    # 数据库管理：左侧树 + 右侧SQL面板
 │   └── components/
 │       ├── WindowControls.vue   # 最小/最大化/关闭按钮
+│       ├── ApiTree.vue          # API 项目/分类/接口三级树
 │       ├── EndpointView.vue     # 接口请求/响应 UI（Postman 风格）
+│       ├── Sidebar.vue          # 侧边栏菜单组件
+│       ├── ProjectConfig.vue    # API 项目配置组件
 │       ├── MysqlTree.vue        # 数据库三级树（连接→库→表）
 │       ├── SqlPanel.vue         # SQL 编辑器 + 查询结果表格
 │       └── dialogs/             # 对话框组件
@@ -109,7 +113,7 @@ package.json                 # 根目录构建编排脚本
 
 ### 4. 数据库管理
 - 三级树结构：**连接 → 数据库 → 表**
-- 连接配置持久化到 `electron/swagger/mysql-connections.json`，支持 `type` 字段（mysql/postgres/sqlite）兼容多类型
+- 连接配置持久化到 `electron/mysql/mysql-connections.json`，支持 `type` 字段（mysql/postgres/sqlite）兼容多类型
 - 连接弹框含数据库类型选择器和测试连接按钮
 - 树节点 hover 操作：连接节点（连接/断开/建库/编辑/删除）、库节点（建表/删库/刷新）、表节点（查看结构/删表）
 - 表结构弹框展示 DESCRIBE 结果 + 添加列功能
@@ -157,7 +161,7 @@ npm run build:linux      # 构建 Linux 安装包
 ## 打包架构
 
 - **electron-builder**：Windows (Portable) + Linux (AppImage/deb)
-- **资源分离**：`web-dist/`、`swagger/` 和 `docs/` 通过 `extraResources` 放在 asar 外部（swagger 需运行时写入，docs 体积大，web-dist 为前端构建产物）
+- **资源分离**：`web-dist/`、`swagger/` 和 `docs/` 通过 `extraResources` 放在 asar 外部（swagger 需运行时写入，docs 体积大，web-dist 为前端构建产物）。`mysql/` 目录目前未加入 extraResources，且 `mysqlConfig.js` 使用 `__dirname` 相对路径，生产环境写入可能需适配
 - **生产环境路径**：`swagger/` 和 `docs/` 在打包后位于 `process.resourcesPath/` 下
 - **生产环境页面加载**：通过 `app://web-dist/` 自定义协议 serve `web-dist/` 目录，支持 Vue Router history 模式
 - **Vite 构建**：`base: 'app://web-dist/'`（构建时）使构建产物中的资源引用使用自定义协议
@@ -165,7 +169,7 @@ npm run build:linux      # 构建 Linux 安装包
 
 ## 关键约定
 
-- **无数据库**：API 数据使用 JSON 文件存储在 `electron/swagger/`；数据库模块的连接配置也存于此目录（`mysql-connections.json`）
+- **无数据库**：API 数据使用 JSON 文件存储在 `electron/swagger/`；数据库模块的连接配置存储在 `electron/mysql/mysql-connections.json`
 - **文档不入 Git**：`electron/docs/*` 已在 `.gitignore` 中排除，文档站点为外部导入
 - **frameless 窗口**：自定义标题栏，`-webkit-app-region: drag` 实现拖拽
 - **webview 标签**：Vite 配置中将 `<webview>` 标记为自定义元素，避免 Vue 编译

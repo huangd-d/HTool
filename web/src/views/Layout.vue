@@ -29,35 +29,27 @@ onMounted(() => {
     <div class="app">
         <!-- 壳视图和完整视图显示头部栏 -->
         <header class="header">
-            <span>Htool</span>
+            <div class="header-left">
+                <span class="app-title">Htool</span>
+                <!-- 菜单图标水平排列 -->
+                <nav class="header-menu">
+                    <template v-for="menu in menuItems" :key="menu.id">
+                        <el-tooltip :content="menu.title" placement="bottom" :show-after="300">
+                            <div class="menu-item" :class="{ active: activeMenu === menu.id }"
+                                @click="handleMenuClick(menu)">
+                                <el-icon>
+                                    <component :is="menu.icon" />
+                                </el-icon>
+                            </div>
+                        </el-tooltip>
+                    </template>
+                </nav>
+            </div>
             <!-- 右侧控制按钮 -->
             <WindowControls />
         </header>
 
-        <div class="sidebar-container">
-            <!-- 左侧菜单内容 -->
-            <div class="sidebar-menu">
-                <!-- 菜单图标 -->
-                <template v-for="menu in menuItems" :key="menu.id">
-                    <el-tooltip :content="menu.title" placement="right" :show-after="300">
-                        <div class="menu-item" :class="{ active: activeMenu === menu.id }"
-                            @click="handleMenuClick(menu)">
-                            <el-icon>
-                                <component :is="menu.icon" />
-                            </el-icon>
-                        </div>
-                    </el-tooltip>
-                </template>
-            </div>
-        </div>
         <main class="main" id="main">
-            <!-- <keep-alive>
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </keep-alive> -->
         </main>
     </div>
 </template>
@@ -66,10 +58,10 @@ onMounted(() => {
 .app {
     display: grid;
     grid-template-rows: 48px 1fr;
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 1fr;
     grid-template-areas:
-        "header header"
-        "sidebar main";
+        "header"
+        "main";
     height: 100vh;
     width: 100vw;
     overflow: hidden;
@@ -82,7 +74,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 16px;
+    padding: 0 8px;
     -webkit-app-region: drag;
     cursor: grab;
 }
@@ -91,7 +83,14 @@ onMounted(() => {
     cursor: grabbing;
 }
 
-.header >span {
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    -webkit-app-region: drag;
+}
+
+.app-title {
     font-size: 18px;
     font-weight: 700;
     color: var(--accent);
@@ -100,16 +99,16 @@ onMounted(() => {
     transition: all 0.3s ease;
 }
 
-.header >span:hover {
+.app-title:hover {
     color: var(--accent);
     transform: scale(1.05);
 }
 
-.sidebar-container {
-    grid-area: sidebar;
-    background-color: var(--bg-secondary);
-    border-right: 1px solid var(--border);
-    height: 100%;
+.header-menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    -webkit-app-region: no-drag;
 }
 
 .main {
@@ -119,25 +118,16 @@ onMounted(() => {
     height: 100%;
 }
 
-/* 左侧菜单栏样式 */
-.sidebar-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-    gap: 20px;
-    height: 100%;
-}
-
+/* 头部菜单项样式 */
 .menu-item {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     color: var(--text-secondary);
     position: relative;
     overflow: hidden;
@@ -146,29 +136,28 @@ onMounted(() => {
 .menu-item:hover {
     background-color: rgba(255, 144, 0, 0.15);
     color: var(--accent);
-    transform: translateY(-2px);
 }
 
 .menu-item.active {
-    background-color: rgba(255, 144, 0, 0.15);
+    background-color: rgba(255, 144, 0, 0.2);
     color: var(--accent);
 }
 
 .menu-item.active::after {
     content: '';
     position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 60%;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
     background-color: var(--accent);
-    border-radius: 0 2px 2px 0;
+    border-radius: 1px;
 }
 
 .menu-item :deep(el-icon) {
-    font-size: 20px;
-    transition: all 0.3s ease;
+    font-size: 18px;
+    transition: all 0.2s ease;
 }
 
 .menu-item:hover :deep(el-icon) {
