@@ -13,8 +13,13 @@ dist-ssr
 *.local
 
 electron/docs/*
+electron/swagger/
+electron/database/
 electron/web-dist/
 electron/dist/
+
+# Stale build artifacts at project root
+/index.html
 
 # Editor directories and files
 .vscode/*

@@ -98,8 +98,8 @@ async function loadStructure() {
   loading.value = true
   loadError.value = ''
   try {
-    if (!window.electronAPI?.mysqlGetTableStructure) throw new Error('electronAPI 不可用')
-    structure.value = await window.electronAPI.mysqlGetTableStructure(
+    if (!window.electronAPI?.databaseGetTableStructure) throw new Error('electronAPI 不可用')
+    structure.value = await window.electronAPI.databaseGetTableStructure(
       props.connectionId, props.dbName, props.tableName
     )
   } catch (err) {
@@ -117,8 +117,8 @@ async function handleAddColumn() {
   }
   addingColumn.value = true
   try {
-    if (!window.electronAPI?.mysqlAlterTableAddColumn) throw new Error('electronAPI 不可用')
-    await window.electronAPI.mysqlAlterTableAddColumn(
+    if (!window.electronAPI?.databaseAlterTableAddColumn) throw new Error('electronAPI 不可用')
+    await window.electronAPI.databaseAlterTableAddColumn(
       props.connectionId, props.dbName, props.tableName,
       {
         name: newColumn.value.name.trim(),

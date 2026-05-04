@@ -85,8 +85,8 @@ async function handleExecute() {
   executing.value = true
   resetResult()
   try {
-    if (!window.electronAPI?.mysqlExecuteQuery) throw new Error('electronAPI 不可用')
-    const result = await window.electronAPI.mysqlExecuteQuery(
+    if (!window.electronAPI?.databaseExecuteQuery) throw new Error('electronAPI 不可用')
+    const result = await window.electronAPI.databaseExecuteQuery(
       props.runtimeId,
       props.currentDb || '',
       sql.value

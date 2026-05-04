@@ -8,7 +8,7 @@
 - **Vue 3** + **Vue Router 5** (history 模式) + **Element Plus 2**
 - **Vite 8** (构建工具)
 - **node-fetch** + **proxy-agent** (API 请求与代理)
-- **mysql2** (MySQL 数据库连接)
+- **mysql2** (数据库驱动，当前仅 MySQL)
 - **jit-viewer** (Office 文档渲染)
 
 ## 项目结构
@@ -24,9 +24,9 @@ electron/                    # Electron 主进程
 │   │   ├── apiHandler.js    # IPC 处理：项目/分类/接口 CRUD + 请求
 │   │   ├── docsHandler.js   # IPC 处理：docs 目录列表
 │   │   ├── requestHandler.js # HTTP 请求引擎 (node-fetch + ProxyAgent)
-│   │   ├── mysqlConnection.js # MySQL 逻辑层（纯 mysql2/promise，无 Electron 依赖）
-│   │   ├── mysqlHandler.js  # IPC 处理：MySQL 连接/库/表/查询
-│   │   └── mysqlConfig.js   # MySQL 连接配置持久化（mysql/mysql-connections.json）
+│   │   ├── databaseConnection.js # 数据库逻辑层（纯 mysql2/promise，无 Electron 依赖）
+│   │   ├── databaseHandler.js  # IPC 处理：数据库连接/库/表/查询
+│   │   └── databaseConfig.js   # 数据库连接配置持久化（database/database-connections.json）
 │   ├── protocol/
 │   │   └── protocolHandler.js # 自定义 app:// + docs:// 协议（前端应用 + 文档站点 + swagger）
 │   └── window/
@@ -37,7 +37,7 @@ electron/                    # Electron 主进程
 ├── build/                   # electron-builder 资源（图标等）
 ├── preload.js               # Context Bridge：暴露 electronAPI
 ├── swagger/                 # API 项目 JSON 数据文件（本地文件存储，无数据库）
-├── mysql/                   # MySQL 连接配置持久化（mysql-connections.json）
+├── database/                # 数据库连接配置持久化（database-connections.json）
 ├── docs/                    # 技术文档静态站点（element-plus/、vue/、vite/）
 ├── web-dist/                # Vite 构建输出（gitignore，构建时生成）
 └── package.json             # 主进程依赖 + electron-builder 配置
@@ -50,7 +50,7 @@ web/                         # Vue 3 前端
 │   ├── config/
 │   │   └── menuConfig.js    # 菜单定义 + createTab 辅助函数
 │   ├── router/
-│   │   └── index.js         # 路由：/ /home /api /docs /office /mysql
+│   │   └── index.js         # 路由：/ /home /api /docs /office /database
 │   └── views/
 │       ├── Layout/              # 壳布局模块
 │       │   ├── index.vue        # Header水平菜单 + Main
@@ -70,10 +70,10 @@ web/                         # Vue 3 前端
 │       │   └── index.vue        # 技术文档：目录列表 + webview
 │       ├── Office/
 │       │   └── index.vue        # Office预览：文件选择 + jit-viewer
-│       └── Mysql/               # 数据库管理模块
+│       └── Database/             # 数据库管理模块
 │           ├── index.vue        # 主视图：左侧树 + 右侧SQL面板
 │           └── components/
-│               ├── MysqlTree.vue        # 三级树（连接→库→表，el-dropdown）
+│               ├── DatabaseTree.vue    # 三级树（连接→库→表，el-dropdown）
 │               ├── SqlPanel.vue         # SQL编辑器 + 结果表格
 │               └── dialogs/
 │                   ├── ConnectionDialog / CreateDatabaseDialog
@@ -120,7 +120,7 @@ package.json                 # 根目录构建编排脚本
 
 ### 4. 数据库管理
 - 三级树结构：**连接 → 数据库 → 表**
-- 连接配置持久化到 `electron/mysql/mysql-connections.json`，支持 `type` 字段（mysql/postgres/sqlite）兼容多类型
+- 连接配置持久化到 `electron/database/database-connections.json`，支持 `type` 字段（database/postgres/sqlite）兼容多类型
 - 连接弹框含数据库类型选择器和测试连接按钮
 - 树节点 hover 显示常用操作图标 + `⋮` 下拉菜单：连接节点（连接/断开图标 + 下拉：建库/编辑/删除）、库节点（刷新图标 + 下拉：建表/删库）、表节点（下拉：查看结构/删表）
 - 表结构弹框展示 DESCRIBE 结果 + 添加列功能
@@ -139,10 +139,10 @@ package.json                 # 根目录构建编排脚本
 | API接口 | `getApiEndpoints()`, `createApiEndpoint()`, `updateApiEndpoint()`, `deleteApiEndpoint()` |
 | API请求 | `sendApiRequest()`, `getFullEndpoint()` |
 | 文档 | `getDocsDirectories()` |
-| MySQL连接 | `mysqlConnect()`, `mysqlDisconnect()`, `mysqlTestConnection()`, `mysqlGetConnections()`, `mysqlGetSavedConnections()`, `mysqlSaveConnection()`, `mysqlDeleteSavedConnection()` |
-| MySQL库 | `mysqlListDatabases()`, `mysqlCreateDatabase()`, `mysqlDropDatabase()` |
-| MySQL表 | `mysqlListTables()`, `mysqlCreateTable()`, `mysqlDropTable()`, `mysqlGetTableStructure()`, `mysqlAlterTableAddColumn()` |
-| MySQL查询 | `mysqlExecuteQuery()` |
+| 数据库连接 | `databaseConnect()`, `databaseDisconnect()`, `databaseTestConnection()`, `databaseGetConnections()`, `databaseGetSavedConnections()`, `databaseSaveConnection()`, `databaseDeleteSavedConnection()` |
+| 数据库库 | `databaseListDatabases()`, `databaseCreateDatabase()`, `databaseDropDatabase()` |
+| 数据库表 | `databaseListTables()`, `databaseCreateTable()`, `databaseDropTable()`, `databaseGetTableStructure()`, `databaseAlterTableAddColumn()` |
+| 数据库查询 | `databaseExecuteQuery()` |
 
 ## 开发与构建命令
 
@@ -168,7 +168,7 @@ npm run build:linux      # 构建 Linux 安装包
 ## 打包架构
 
 - **electron-builder**：Windows (Portable) + Linux (AppImage/deb)
-- **资源分离**：`web-dist/`、`swagger/` 和 `docs/` 通过 `extraResources` 放在 asar 外部（swagger 需运行时写入，docs 体积大，web-dist 为前端构建产物）。`mysql/` 目录目前未加入 extraResources，且 `mysqlConfig.js` 使用 `__dirname` 相对路径，生产环境写入可能需适配
+- **资源分离**：`web-dist/`、`swagger/` 和 `docs/` 通过 `extraResources` 放在 asar 外部（swagger 需运行时写入，docs 体积大，web-dist 为前端构建产物）。`database/` 目录目前未加入 extraResources，且 `databaseConfig.js` 使用 `__dirname` 相对路径，生产环境写入可能需适配
 - **生产环境路径**：`swagger/` 和 `docs/` 在打包后位于 `process.resourcesPath/` 下
 - **生产环境页面加载**：通过 `app://web-dist/` 自定义协议 serve `web-dist/` 目录，支持 Vue Router history 模式
 - **Vite 构建**：`base: 'app://web-dist/'`（构建时）使构建产物中的资源引用使用自定义协议
@@ -176,7 +176,7 @@ npm run build:linux      # 构建 Linux 安装包
 
 ## 关键约定
 
-- **无数据库**：API 数据使用 JSON 文件存储在 `electron/swagger/`；数据库模块的连接配置存储在 `electron/mysql/mysql-connections.json`
+- **无数据库**：API 数据使用 JSON 文件存储在 `electron/swagger/`；数据库模块的连接配置存储在 `electron/database/database-connections.json`
 - **文档不入 Git**：`electron/docs/*` 已在 `.gitignore` 中排除，文档站点为外部导入
 - **frameless 窗口**：自定义标题栏，`-webkit-app-region: drag` 实现拖拽
 - **webview 标签**：Vite 配置中将 `<webview>` 标记为自定义元素，避免 Vue 编译

@@ -1,5 +1,5 @@
 <template>
-  <div class="mysql-tree">
+  <div class="database-tree">
     <div class="tree-header">
       <h3>数据库</h3>
       <div class="tree-actions">
@@ -173,8 +173,8 @@ function removeActiveConnection(savedId) {
 
 async function loadConnections() {
   try {
-    if (!window.electronAPI?.mysqlGetSavedConnections) return
-    const connections = await window.electronAPI.mysqlGetSavedConnections()
+    if (!window.electronAPI?.databaseGetSavedConnections) return
+    const connections = await window.electronAPI.databaseGetSavedConnections()
     treeData.value = connections.map(c => ({
       id: c.id,
       name: c.name || `${c.host}:${c.port}`,
@@ -217,10 +217,10 @@ function onNodeExpand(data, node) {
 
 async function handleConnect(data) {
   try {
-    if (!window.electronAPI?.mysqlConnect) return
+    if (!window.electronAPI?.databaseConnect) return
     const cfg = data.config
-    const result = await window.electronAPI.mysqlConnect({
-      type: cfg.type || 'mysql',
+    const result = await window.electronAPI.databaseConnect({
+      type: cfg.type || 'database',
       host: cfg.host,
       port: parseInt(cfg.port, 10),
       user: cfg.user,
@@ -239,8 +239,8 @@ async function handleConnect(data) {
 async function handleDisconnect(data) {
   const runtimeId = activeConnectionMap.value.get(data.id)
   try {
-    if (runtimeId && window.electronAPI?.mysqlDisconnect) {
-      await window.electronAPI.mysqlDisconnect(runtimeId)
+    if (runtimeId && window.electronAPI?.databaseDisconnect) {
+      await window.electronAPI.databaseDisconnect(runtimeId)
     }
   } catch (err) {
     console.error('断开连接错误:', err)
@@ -255,8 +255,8 @@ async function loadDatabases(connectionNode) {
   const runtimeId = activeConnectionMap.value.get(connectionNode.id)
   if (!runtimeId) return
   try {
-    if (!window.electronAPI?.mysqlListDatabases) return
-    const dbs = await window.electronAPI.mysqlListDatabases(runtimeId)
+    if (!window.electronAPI?.databaseListDatabases) return
+    const dbs = await window.electronAPI.databaseListDatabases(runtimeId)
     connectionNode.children = dbs.map(db => ({
       id: `${connectionNode.id}::${db}`,
       name: db,
@@ -275,8 +275,8 @@ async function loadTables(dbNode) {
   const runtimeId = activeConnectionMap.value.get(dbNode.connectionId)
   if (!runtimeId) return
   try {
-    if (!window.electronAPI?.mysqlListTables) return
-    const tables = await window.electronAPI.mysqlListTables(runtimeId, dbNode.dbName)
+    if (!window.electronAPI?.databaseListTables) return
+    const tables = await window.electronAPI.databaseListTables(runtimeId, dbNode.dbName)
     dbNode.children = tables.map(t => ({
       id: `${dbNode.id}::${t.name}`,
       name: t.name,
@@ -325,8 +325,8 @@ async function handleDeleteConnection(data) {
     await handleDisconnect(data)
   }
   try {
-    if (window.electronAPI?.mysqlDeleteSavedConnection) {
-      await window.electronAPI.mysqlDeleteSavedConnection(data.id)
+    if (window.electronAPI?.databaseDeleteSavedConnection) {
+      await window.electronAPI.databaseDeleteSavedConnection(data.id)
     }
     await loadConnections()
     emit('connection-changed', { savedId: data.id, runtimeId: null, action: 'delete' })
@@ -338,11 +338,11 @@ async function handleDeleteConnection(data) {
 async function handleSaveConnection(formData) {
   const isCreating = !editingSavedId.value
   try {
-    if (window.electronAPI?.mysqlSaveConnection) {
+    if (window.electronAPI?.databaseSaveConnection) {
       if (editingSavedId.value) {
         formData.id = editingSavedId.value
       }
-      await window.electronAPI.mysqlSaveConnection(formData)
+      await window.electronAPI.databaseSaveConnection(formData)
     }
     await loadConnections()
     if (isCreating && treeData.value.length > 0) {
@@ -365,7 +365,7 @@ async function handleSaveCreateDatabase({ name, charset, collation }) {
   const runtimeId = activeConnectionMap.value.get(createDatabaseTarget.value.id)
   if (!runtimeId) return
   try {
-    await window.electronAPI.mysqlCreateDatabase(runtimeId, name, charset, collation)
+    await window.electronAPI.databaseCreateDatabase(runtimeId, name, charset, collation)
     const connNode = treeData.value.find(n => n.id === createDatabaseTarget.value.id)
     if (connNode) await loadDatabases(connNode)
   } catch (err) {
@@ -378,7 +378,7 @@ async function handleDropDatabase(data) {
   const runtimeId = activeConnectionMap.value.get(data.connectionId)
   if (!runtimeId) return
   try {
-    await window.electronAPI.mysqlDropDatabase(runtimeId, data.dbName)
+    await window.electronAPI.databaseDropDatabase(runtimeId, data.dbName)
     const connNode = treeData.value.find(n => n.id === data.connectionId)
     if (connNode) await loadDatabases(connNode)
   } catch (err) {
@@ -397,7 +397,7 @@ async function handleSaveCreateTable({ tableName, columns }) {
   const runtimeId = activeConnectionMap.value.get(createTableTarget.value.connectionId)
   if (!runtimeId) return
   try {
-    await window.electronAPI.mysqlCreateTable(runtimeId, createTableTarget.value.dbName, tableName, columns)
+    await window.electronAPI.databaseCreateTable(runtimeId, createTableTarget.value.dbName, tableName, columns)
     const connNode = treeData.value.find(n => n.id === createTableTarget.value.connectionId)
     if (connNode) {
       const dbNode = connNode.children?.find(n => n.dbName === createTableTarget.value.dbName)
@@ -424,7 +424,7 @@ async function handleDropTable(data) {
   const runtimeId = activeConnectionMap.value.get(data.connectionId)
   if (!runtimeId) return
   try {
-    await window.electronAPI.mysqlDropTable(runtimeId, data.dbName, data.tableName)
+    await window.electronAPI.databaseDropTable(runtimeId, data.dbName, data.tableName)
     const connNode = treeData.value.find(n => n.id === data.connectionId)
     if (connNode) {
       const dbNode = connNode.children?.find(n => n.dbName === data.dbName)
@@ -459,7 +459,7 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
 </script>
 
 <style scoped>
-.mysql-tree {
+.database-tree {
   min-width: 0;
   height: 100%;
   display: flex;
@@ -623,34 +623,34 @@ defineExpose({ loadConnections, getRuntimeId, isConnected })
 }
 
 /* 下拉菜单暗黑主题 */
-.mysql-tree :deep(.el-dropdown-menu) {
+.database-tree :deep(.el-dropdown-menu) {
   background: var(--content-bg-card);
   border: 1px solid var(--content-border);
   padding: 4px;
 }
 
-.mysql-tree :deep(.el-dropdown-menu__item) {
+.database-tree :deep(.el-dropdown-menu__item) {
   color: var(--content-text);
   font-size: 12px;
   padding: 5px 12px;
   border-radius: 3px;
 }
 
-.mysql-tree :deep(.el-dropdown-menu__item:hover) {
+.database-tree :deep(.el-dropdown-menu__item:hover) {
   background: rgba(255, 144, 0, 0.1);
   color: var(--accent);
 }
 
-.mysql-tree :deep(.el-dropdown-menu__item.danger-item) {
+.database-tree :deep(.el-dropdown-menu__item.danger-item) {
   color: #ff3b30;
 }
 
-.mysql-tree :deep(.el-dropdown-menu__item.danger-item:hover) {
+.database-tree :deep(.el-dropdown-menu__item.danger-item:hover) {
   background: rgba(255, 59, 48, 0.1);
   color: #ff3b30;
 }
 
-.mysql-tree :deep(.el-dropdown-menu__item--divided:before) {
+.database-tree :deep(.el-dropdown-menu__item--divided:before) {
   border-top-color: var(--content-border);
   margin: 4px 0;
 }

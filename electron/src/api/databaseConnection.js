@@ -18,7 +18,7 @@ function getConnection(connectionId) {
 }
 
 export async function testConnection(config) {
-  const { type = 'mysql', host, port, user, password } = config
+  const { type = 'database', host, port, user, password } = config
   const conn = await mysql.createConnection({ host, port: Number(port), user, password })
   await conn.query('SELECT 1')
   await conn.end()
@@ -26,7 +26,7 @@ export async function testConnection(config) {
 }
 
 export async function createConnection(config) {
-  const { type = 'mysql', host, port, user, password } = config
+  const { type = 'database', host, port, user, password } = config
   const conn = await mysql.createConnection({ host, port: Number(port), user, password })
   await conn.query('SELECT 1')
   const id = String(nextId++)

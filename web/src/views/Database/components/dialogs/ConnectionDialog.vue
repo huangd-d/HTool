@@ -10,12 +10,12 @@
         <div class="form-item">
           <label>数据库类型:</label>
           <select v-model="form.type">
-            <option value="mysql">MySQL</option>
+            <option value="database">MySQL</option>
             <option value="postgres">PostgreSQL</option>
             <option value="sqlite">SQLite</option>
           </select>
         </div>
-        <template v-if="form.type === 'mysql' || form.type === 'postgres'">
+        <template v-if="form.type === 'database' || form.type === 'postgres'">
           <div class="form-item">
             <label>主机地址:</label>
             <input v-model="form.host" type="text" placeholder="127.0.0.1">
@@ -66,7 +66,7 @@ const emit = defineEmits(['update:modelValue', 'save'])
 
 const form = ref({
   name: '',
-  type: 'mysql',
+  type: 'database',
   host: '127.0.0.1',
   port: 3306,
   user: 'root',
@@ -87,7 +87,7 @@ watch([() => props.modelValue, () => props.connection], ([visible, connection]) 
     if (connection) {
       form.value = {
         name: connection.name || '',
-        type: connection.type || 'mysql',
+        type: connection.type || 'database',
         host: connection.host || '127.0.0.1',
         port: connection.port || 3306,
         user: connection.user || 'root',
@@ -103,7 +103,7 @@ watch([() => props.modelValue, () => props.connection], ([visible, connection]) 
 function resetForm() {
   form.value = {
     name: '',
-    type: 'mysql',
+    type: 'database',
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
@@ -142,8 +142,8 @@ async function handleTest() {
   testMessage.value = ''
   try {
     const config = buildConfig()
-    if (!window.electronAPI?.mysqlTestConnection) throw new Error('electronAPI 不可用')
-    await window.electronAPI.mysqlTestConnection(config)
+    if (!window.electronAPI?.databaseTestConnection) throw new Error('electronAPI 不可用')
+    await window.electronAPI.databaseTestConnection(config)
     testResult.value = 'success'
     testMessage.value = '连接成功'
   } catch (err) {

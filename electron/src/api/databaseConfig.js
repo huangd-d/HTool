@@ -3,12 +3,12 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const MYSQL_DIR = path.join(__dirname, '..', '..', 'mysql')
-const CONFIG_FILE = path.join(MYSQL_DIR, 'mysql-connections.json')
+const DATABASE_DIR = path.join(__dirname, '..', '..', 'database')
+const CONFIG_FILE = path.join(DATABASE_DIR, 'database-connections.json')
 
 function ensureConfigFile() {
-  if (!fs.existsSync(MYSQL_DIR)) {
-    fs.mkdirSync(MYSQL_DIR, { recursive: true })
+  if (!fs.existsSync(DATABASE_DIR)) {
+    fs.mkdirSync(DATABASE_DIR, { recursive: true })
   }
   if (!fs.existsSync(CONFIG_FILE)) {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify({ connections: [] }, null, 2))
@@ -31,7 +31,7 @@ export function saveConnection(config) {
       data.connections.push(config)
     }
   } else {
-    if (!config.type) config.type = 'mysql'
+    if (!config.type) config.type = 'database'
     config.id = Date.now().toString()
     data.connections.push(config)
   }

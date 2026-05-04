@@ -1,14 +1,14 @@
 <template>
-  <div class="mysql-container">
-    <MysqlTree
-      ref="mysqlTreeRef"
+  <div class="database-container">
+    <DatabaseTree
+      ref="databaseTreeRef"
       @select-connection="handleSelectConnection"
       @select-database="handleSelectDatabase"
       @select-table="handleSelectTable"
       @connection-changed="handleConnectionChanged"
     />
 
-    <div class="mysql-content">
+    <div class="database-content">
       <template v-if="activeRuntimeId">
         <SqlPanel
           ref="sqlPanelRef"
@@ -28,18 +28,18 @@
 
 <script setup>
 import { ref } from 'vue'
-import MysqlTree from './components/MysqlTree.vue'
+import DatabaseTree from './components/DatabaseTree.vue'
 import SqlPanel from './components/SqlPanel.vue'
 
-const mysqlTreeRef = ref(null)
+const databaseTreeRef = ref(null)
 const sqlPanelRef = ref(null)
 
 const activeRuntimeId = ref(null)
 const activeDb = ref('')
 
 function handleSelectConnection(data) {
-  if (mysqlTreeRef.value?.isConnected(data.id)) {
-    const runtimeId = mysqlTreeRef.value.getRuntimeId(data.id)
+  if (databaseTreeRef.value?.isConnected(data.id)) {
+    const runtimeId = databaseTreeRef.value.getRuntimeId(data.id)
     if (runtimeId) {
       activeRuntimeId.value = runtimeId
       activeDb.value = ''
@@ -48,7 +48,7 @@ function handleSelectConnection(data) {
 }
 
 function handleSelectDatabase(data) {
-  const runtimeId = mysqlTreeRef.value?.getRuntimeId(data.connectionId)
+  const runtimeId = databaseTreeRef.value?.getRuntimeId(data.connectionId)
   if (runtimeId) {
     activeRuntimeId.value = runtimeId
     activeDb.value = data.dbName
@@ -56,7 +56,7 @@ function handleSelectDatabase(data) {
 }
 
 function handleSelectTable(data) {
-  const runtimeId = mysqlTreeRef.value?.getRuntimeId(data.connectionId)
+  const runtimeId = databaseTreeRef.value?.getRuntimeId(data.connectionId)
   if (runtimeId) {
     activeRuntimeId.value = runtimeId
     activeDb.value = data.dbName
@@ -69,7 +69,7 @@ function handleConnectionChanged({ savedId, runtimeId, action }) {
     activeRuntimeId.value = runtimeId
     activeDb.value = ''
   } else if (action === 'disconnect' || action === 'delete') {
-    if (activeRuntimeId.value === mysqlTreeRef.value?.getRuntimeId(savedId)) {
+    if (activeRuntimeId.value === databaseTreeRef.value?.getRuntimeId(savedId)) {
       activeRuntimeId.value = null
       activeDb.value = ''
     }
@@ -85,7 +85,7 @@ function handleQueryExecuted({ sql, result }) {
 </script>
 
 <style scoped>
-.mysql-container {
+.database-container {
   height: 100%;
   width: 100%;
   display: grid;
@@ -93,7 +93,7 @@ function handleQueryExecuted({ sql, result }) {
   overflow: hidden;
 }
 
-.mysql-content {
+.database-content {
   min-width: 0;
   display: flex;
   flex-direction: column;

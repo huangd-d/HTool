@@ -20,7 +20,7 @@ import { registerProtocol, handleProtocol } from './protocol/protocolHandler.js'
 import { createWindow, registerWindowEvents, initializeFirstTab } from './window/windowManager.js'
 import { registerApiHandlers } from './api/apiHandler.js'
 import { registerDocsHandlers } from './api/docsHandler.js'
-import { registerMysqlHandlers } from './api/mysqlHandler.js'
+import { registerDatabaseHandlers } from './api/databaseHandler.js'
 
 // 注册协议
 registerProtocol()
@@ -45,6 +45,6 @@ app.whenReady().then(() => {
   // 注册文档处理
   registerDocsHandlers()
 
-  // 注册 MySQL 处理
-  registerMysqlHandlers()
+  // 注册数据库处理
+  registerDatabaseHandlers()
 })
