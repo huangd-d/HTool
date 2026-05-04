@@ -1,4 +1,5 @@
 <template>
+  <Teleport to="body">
   <div class="dialog-overlay" v-if="modelValue">
     <div class="dialog wide">
       <h3>创建表 {{ dbName ? '- ' + dbName : '' }}</h3>
@@ -40,6 +41,7 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup>

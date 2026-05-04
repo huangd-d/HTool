@@ -1,23 +1,25 @@
 <template>
-  <div class="dialog-overlay" v-if="modelValue">
-    <div class="dialog">
-      <h3>{{ isEdit ? '编辑分类' : '创建分类' }}</h3>
-      <div class="dialog-content">
-        <div class="form-item">
-          <label>分类名称:</label>
-          <input v-model="form.name" type="text" placeholder="输入分类名称">
+  <Teleport to="body">
+    <div class="dialog-overlay" v-if="modelValue">
+      <div class="dialog">
+        <h3>{{ isEdit ? '编辑分类' : '创建分类' }}</h3>
+        <div class="dialog-content">
+          <div class="form-item">
+            <label>分类名称:</label>
+            <input v-model="form.name" type="text" placeholder="输入分类名称">
+          </div>
+          <div class="form-item">
+            <label>分类描述:</label>
+            <textarea v-model="form.description" placeholder="输入分类描述"></textarea>
+          </div>
         </div>
-        <div class="form-item">
-          <label>分类描述:</label>
-          <textarea v-model="form.description" placeholder="输入分类描述"></textarea>
+        <div class="dialog-actions">
+          <button @click="close">取消</button>
+          <button @click="handleSave" class="primary">保存</button>
         </div>
-      </div>
-      <div class="dialog-actions">
-        <button @click="close">取消</button>
-        <button @click="handleSave" class="primary">保存</button>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup>

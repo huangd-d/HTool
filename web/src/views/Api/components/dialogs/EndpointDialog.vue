@@ -1,5 +1,6 @@
 <template>
-  <div class="dialog-overlay" v-if="modelValue">
+  <Teleport to="body">
+    <div class="dialog-overlay" v-if="modelValue">
     <div class="dialog">
       <h3>{{ isEdit ? '编辑接口' : '创建接口' }}</h3>
       <div class="dialog-content">
@@ -48,7 +49,8 @@
         <button @click="handleSave" class="primary">保存</button>
       </div>
     </div>
-  </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>

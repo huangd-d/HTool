@@ -1,4 +1,5 @@
 <template>
+  <Teleport to="body">
   <div class="dialog-overlay" v-if="modelValue">
     <div class="dialog">
       <h3>创建数据库 {{ connectionName ? '- ' + connectionName : '' }}</h3>
@@ -33,6 +34,7 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup>

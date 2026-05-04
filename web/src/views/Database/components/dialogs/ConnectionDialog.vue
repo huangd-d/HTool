@@ -1,4 +1,5 @@
 <template>
+  <Teleport to="body">
   <div class="dialog-overlay" v-if="modelValue">
     <div class="dialog">
       <h3>{{ isEdit ? '编辑连接' : '新建连接' }}</h3>
@@ -52,6 +53,7 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup>
