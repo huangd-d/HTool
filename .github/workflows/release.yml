@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build:
     strategy:
       matrix:
         include:
@@ -28,11 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Install web dependencies
-        working-directory: web
-        run: npm ci
+          node-version: 24.15.0
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -42,12 +38,32 @@ jobs:
         working-directory: electron
         run: npm ci
 
-      - name: Build frontend
-        working-directory: web
-        run: npm run build
-
-      - name: Build & publish
+      - name: Build
         working-directory: electron
+        run: npx electron-builder ${{ matrix.build_cmd }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: electron/dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --publish always ${{ matrix.build_cmd }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          gh release create "$TAG" artifacts/**/* --title "$TAG" --notes "Release $TAG"

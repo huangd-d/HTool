@@ -8,6 +8,7 @@
     "dev:electron": "cd electron && npm start",
     "build:web": "cd web && npm run build",
     "build:win": "cd electron && npm run build:win",
-    "build:linux": "cd electron && npm run build:linux"
+    "build:linux": "cd electron && npm run build:linux",
+    "release": "bash scripts/release.sh"
   }
 }

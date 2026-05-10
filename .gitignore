@@ -13,7 +13,6 @@ dist-ssr
 *.local
 
 electron/database/
-electron/web-dist/
 electron/dist/
 
 # Stale build artifacts at project root
