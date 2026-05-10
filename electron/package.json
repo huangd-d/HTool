@@ -4,6 +4,7 @@
   "description": "综合工具平台",
   "license": "ISC",
   "author": "",
+  "homepage": "https://github.com/huangd-d/HTool",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "综合工具平台 - Build orchestrator",
+  "homepage": "https://github.com/huangd-d/HTool", 
   "scripts": {
     "dev:web": "cd web && npm run dev",
     "dev:electron": "cd electron && npm start",
